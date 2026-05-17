@@ -464,3 +464,19 @@ client.on(Events.InteractionCreate, async interaction => {
 
 // Iniciamos sesión con el token guardado en .env
 client.login(process.env.DISCORD_TOKEN);
+
+// ==========================================
+// SERVIDOR WEB PARA RENDER
+// ==========================================
+// Render requiere que los "Web Services" abran un puerto HTTP, 
+// de lo contrario la aplicación fallará al desplegar (No open ports detected).
+const http = require('http');
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Bot de Discord en linea!\n');
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`🌐 Servidor web escuchando en el puerto ${PORT}`);
+});
