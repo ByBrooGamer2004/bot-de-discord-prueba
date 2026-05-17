@@ -87,7 +87,7 @@ client.on(Events.MessageCreate, async message => {
             if (hasDiscordLink) {
                 await message.delete().catch(() => {});
                 messageDeleted = true;
-                return message.channel.send(`⚠️ <@${message.author.id}>, ¡No está permitido enviar invitaciones a otros servidores!`).then(m => setTimeout(() => m.delete().catch(() => {}), 4000));
+                return message.channel.send(`⚠️ <@${message.author.id}>, ¡No está permitido enviar invitaciones a otros servidores!`).then(m => setTimeout(() => m.delete().catch(() => {}), 120000));
             }
         }
 
@@ -103,7 +103,7 @@ client.on(Events.MessageCreate, async message => {
                 if (!isOnlyGifs) {
                     await message.delete().catch(() => {});
                     messageDeleted = true;
-                    return message.channel.send(`🔗 <@${message.author.id}>, ¡No está permitido enviar links o publicidad externa!`).then(m => setTimeout(() => m.delete().catch(() => {}), 4000));
+                    return message.channel.send(`🔗 <@${message.author.id}>, ¡No está permitido enviar links o publicidad externa!`).then(m => setTimeout(() => m.delete().catch(() => {}), 120000));
                 }
             }
         }
@@ -128,7 +128,7 @@ client.on(Events.MessageCreate, async message => {
                 // Vaciar su historial para no bugearlo ni llenarle la pantalla de infinitas advertencias
                 userSpamData.set(message.author.id, []);
 
-                return message.channel.send(`🛑 <@${message.author.id}>, estás enviando mensajes demasiado rápido. ¡Cálmate un poco!`).then(m => setTimeout(() => m.delete().catch(() => {}), 4000));
+                return message.channel.send(`🛑 <@${message.author.id}>, estás enviando mensajes demasiado rápido. ¡Cálmate un poco!`).then(m => setTimeout(() => m.delete().catch(() => {}), 120000));
             }
         }
     }
@@ -144,12 +144,12 @@ client.on(Events.MessageCreate, async message => {
 
         const panelEmbed = new EmbedBuilder()
             .setColor('#2e82ff')
-            .setTitle('🎫 Support & Help')
-            .setDescription('If you have a question, issue, or need assistance, click the button below to open a ticket. The administrators will assist you privately.');
+            .setTitle('🎫 Soporte y Ayuda')
+            .setDescription('Si tienes una duda, problema o necesitas asistencia, haz clic en el botón de abajo para abrir un ticket. Los administradores te atenderán en privado.');
 
         const button = new ButtonBuilder()
             .setCustomId('btn_crear_ticket')
-            .setLabel('Open Ticket 🎫')
+            .setLabel('Abrir Ticket 🎫')
             .setStyle(ButtonStyle.Primary);
 
         const row = new ActionRowBuilder().addComponents(button);
@@ -211,18 +211,18 @@ client.on(Events.InteractionCreate, async interaction => {
             const reason = interaction.fields.getTextInputValue('input_reason');
             const solved = interaction.fields.getTextInputValue('input_solved');
             
-            await interaction.reply('🔒 Saving record and archiving the ticket...');
+            await interaction.reply('🔒 Guardando registro y archivando el ticket...');
             
             const logChannel = interaction.guild.channels.cache.get(ticketConfig.logChannelId);
             if (logChannel) {
                 const logEmbed = new EmbedBuilder()
                     .setColor('#e67e22') // Naranja
-                    .setTitle('📄 Closed Ticket Report')
+                    .setTitle('📄 Reporte de Ticket Cerrado')
                     .addFields(
-                        { name: 'Original Channel', value: interaction.channel.name, inline: true },
-                        { name: 'Closed by', value: `<@${interaction.user.id}>`, inline: true },
-                        { name: 'Solved?', value: solved, inline: true },
-                        { name: 'Reason / Context', value: reason, inline: false }
+                        { name: 'Canal Original', value: interaction.channel.name, inline: true },
+                        { name: 'Cerrado por', value: `<@${interaction.user.id}>`, inline: true },
+                        { name: '¿Resuelto?', value: solved, inline: true },
+                        { name: 'Razón / Contexto', value: reason, inline: false }
                     )
                     .setTimestamp();
                 
@@ -254,12 +254,12 @@ client.on(Events.InteractionCreate, async interaction => {
             try {
                 const deleteEmbed = new EmbedBuilder()
                     .setColor('#ff4747')
-                    .setTitle('🗑️ Manage Archived Ticket')
-                    .setDescription('This ticket is now closed and hidden from the user.\nYou can leave it here, or permanently delete the channel.');
+                    .setTitle('🗑️ Gestionar Ticket Archivado')
+                    .setDescription('Este ticket ahora está cerrado y oculto para el usuario.\nPuedes dejarlo aquí o borrar permanentemente el canal.');
                 
                 const deleteBtn = new ButtonBuilder()
                     .setCustomId('btn_delete_ticket')
-                    .setLabel('Delete Ticket 🗑️')
+                    .setLabel('Borrar Ticket 🗑️')
                     .setStyle(ButtonStyle.Danger);
 
                 const delRow = new ActionRowBuilder().addComponents(deleteBtn);
@@ -314,22 +314,22 @@ client.on(Events.InteractionCreate, async interaction => {
             // Enviar mensaje de bienvenida en el nuevo ticket con el botón de cerrar
             const ticketEmbed = new EmbedBuilder()
                 .setColor('#2e82ff')
-                .setTitle('Support Ticket')
-                .setDescription(`Hello <@${interaction.user.id}>! An administrator will assist you shortly. Please go ahead and indicate your problem or question below in as much detail as possible.\n\nTo close this ticket, click the button below.`);
+                .setTitle('Ticket de Soporte')
+                .setDescription(`¡Hola <@${interaction.user.id}>! Un administrador te atenderá en breve. Por favor, indica tu problema o pregunta a continuación con el mayor detalle posible.\n\nPara cerrar este ticket, haz clic en el botón de abajo.`);
 
             const closeButton = new ButtonBuilder()
                 .setCustomId('btn_cerrar_ticket')
-                .setLabel('Close Ticket 🔒')
+                .setLabel('Cerrar Ticket 🔒')
                 .setStyle(ButtonStyle.Danger);
 
             const claimButton = new ButtonBuilder()
                 .setCustomId('btn_claim_ticket')
-                .setLabel('Claim Ticket ✋')
+                .setLabel('Reclamar Ticket ✋')
                 .setStyle(ButtonStyle.Primary);
 
             const lockButton = new ButtonBuilder()
                 .setCustomId('btn_lock_ticket')
-                .setLabel('Lock Ticket 🛑')
+                .setLabel('Bloquear Ticket 🛑')
                 .setStyle(ButtonStyle.Secondary);
 
             const row = new ActionRowBuilder().addComponents(closeButton, claimButton, lockButton);
@@ -338,7 +338,7 @@ client.on(Events.InteractionCreate, async interaction => {
             
         } catch (error) {
             console.error('Error creando ticket:', error);
-            await interaction.reply({ content: '⚠️ There was an error creating your ticket. Make sure the bot has the Administrator role.', ephemeral: true });
+            await interaction.reply({ content: '⚠️ Hubo un error al crear tu ticket. Asegúrate de que el bot tenga el rol de Administrador.', ephemeral: true });
         }
     }
 
@@ -346,15 +346,15 @@ client.on(Events.InteractionCreate, async interaction => {
         const hasAdmin = interaction.member.permissions.has('Administrator');
         const hasSupportRole = ticketConfig.supportRoleId && interaction.member.roles.cache.has(ticketConfig.supportRoleId);
         if (!hasAdmin && !hasSupportRole) {
-            return interaction.reply({ content: '⚠️ Only administrators and support staff can claim tickets.', ephemeral: true });
+            return interaction.reply({ content: '⚠️ Solo los administradores y el soporte pueden reclamar tickets.', ephemeral: true });
         }
 
         const embed = EmbedBuilder.from(interaction.message.embeds[0]);
-        embed.addFields({ name: 'Claimed By', value: `<@${interaction.user.id}>` });
+        embed.addFields({ name: 'Reclamado por', value: `<@${interaction.user.id}>` });
         embed.setColor('#2ecc71'); // Color verde
 
         const actionRow = ActionRowBuilder.from(interaction.message.components[0]);
-        actionRow.components[1].setDisabled(true).setLabel('Claimed ✔️');
+        actionRow.components[1].setDisabled(true).setLabel('Reclamado ✔️');
 
         await interaction.update({ embeds: [embed], components: [actionRow] });
     }
@@ -363,7 +363,7 @@ client.on(Events.InteractionCreate, async interaction => {
         const hasAdmin = interaction.member.permissions.has('Administrator');
         const hasSupportRole = ticketConfig.supportRoleId && interaction.member.roles.cache.has(ticketConfig.supportRoleId);
         if (!hasAdmin && !hasSupportRole) {
-            return interaction.reply({ content: '⚠️ Only administrators and support staff can lock/unlock tickets.', ephemeral: true });
+            return interaction.reply({ content: '⚠️ Solo los administradores y el soporte pueden bloquear/desbloquear tickets.', ephemeral: true });
         }
 
         const isLocking = interaction.customId === 'btn_lock_ticket';
@@ -371,24 +371,24 @@ client.on(Events.InteractionCreate, async interaction => {
         if (isLocking) {
             await interaction.channel.setTopic(`locked_by:${interaction.user.id}`);
             const actionRow = ActionRowBuilder.from(interaction.message.components[0]);
-            actionRow.components[2].setCustomId('btn_unlock_ticket').setLabel('Unlock Ticket 🔓').setStyle(ButtonStyle.Success);
+            actionRow.components[2].setCustomId('btn_unlock_ticket').setLabel('Desbloquear Ticket 🔓').setStyle(ButtonStyle.Success);
             
             await interaction.update({ components: [actionRow] });
-            await interaction.followUp({ content: `🛑 Ticket locked by <@${interaction.user.id}>. Nobody else can close it now.`, ephemeral: false });
+            await interaction.followUp({ content: `🛑 Ticket bloqueado por <@${interaction.user.id}>. Nadie más podrá cerrarlo.`, ephemeral: false });
         } else {
             const topic = interaction.channel.topic || '';
             const lockedBy = topic.replace('locked_by:', '');
             
             if (lockedBy && lockedBy !== interaction.user.id && !interaction.member.permissions.has('Administrator')) {
-                return interaction.reply({ content: `⚠️ Only the admin who locked it (<@${lockedBy}>) can unlock it.`, ephemeral: true });
+                return interaction.reply({ content: `⚠️ Solo el admin que lo bloqueó (<@${lockedBy}>) puede desbloquearlo.`, ephemeral: true });
             }
 
             await interaction.channel.setTopic('');
             const actionRow = ActionRowBuilder.from(interaction.message.components[0]);
-            actionRow.components[2].setCustomId('btn_lock_ticket').setLabel('Lock Ticket 🛑').setStyle(ButtonStyle.Secondary);
+            actionRow.components[2].setCustomId('btn_lock_ticket').setLabel('Bloquear Ticket 🛑').setStyle(ButtonStyle.Secondary);
             
             await interaction.update({ components: [actionRow] });
-            await interaction.followUp({ content: `🔓 Ticket unlocked by <@${interaction.user.id}>.`, ephemeral: false });
+            await interaction.followUp({ content: `🔓 Ticket desbloqueado por <@${interaction.user.id}>.`, ephemeral: false });
         }
     }
 
@@ -437,17 +437,17 @@ client.on(Events.InteractionCreate, async interaction => {
         // En vez de archivar directo, abrimos el modal
         const modal = new ModalBuilder()
             .setCustomId('modal_close_ticket')
-            .setTitle('Ticket Closure Log');
+            .setTitle('Registro de Cierre');
 
         const reasonInput = new TextInputBuilder()
             .setCustomId('input_reason')
-            .setLabel('What was the problem and/or solution?')
+            .setLabel('¿Cuál fue el problema y/o solución?')
             .setStyle(TextInputStyle.Paragraph) // Campo grande de texto
             .setRequired(true);
 
         const solvedInput = new TextInputBuilder()
             .setCustomId('input_solved')
-            .setLabel('Was the problem solved? (Yes/No)')
+            .setLabel('¿Se resolvió el problema? (Sí/No)')
             .setStyle(TextInputStyle.Short) // Linea corta de texto
             .setRequired(true)
             .setMaxLength(20);
