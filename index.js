@@ -20,7 +20,7 @@ const client = new Client({
 // ==========================================
 const automodConfig = {
     antiLinks: true,         // Bloquear invitaciones de Discord
-    antiExternalLinks: true, // Bloquear cualquier otro tipo de link (http/https)
+    antiExternalLinks: false, // Bloquear cualquier otro tipo de link (http/https)
     antiSpam: {
         enabled: true,
         maxMessages: 4,      // Mensajes máximos permitidos
@@ -55,9 +55,9 @@ client.on(Events.MessageCreate, async message => {
     if (message.author.bot) return;
 
     // ----------------------------------------
-    // AUTO-MODERADOR (Ignora a administradores)
+    // AUTO-MODERADOR (Ignora a administradores y moderadores)
     // ----------------------------------------
-    if (message.member && !message.member.permissions.has(PermissionFlagsBits.Administrator)) {
+    if (message.member && !message.member.permissions.has(PermissionFlagsBits.Administrator) && !message.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
         
         let messageDeleted = false;
 
