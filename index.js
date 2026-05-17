@@ -11,6 +11,7 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers,
     ],
     partials: [Partials.Message, Partials.Channel],
 });
@@ -47,6 +48,25 @@ const ticketConfig = {
 client.once(Events.ClientReady, async c => {
     console.log(`✅ ¡Bot listo! Conectado como ${c.user.tag}`);
 });
+
+// ==========================================
+// AUTO-ROL PARA NUEVOS MIEMBROS
+// ==========================================
+const autoRoleId = '1281431766741155861';
+
+client.on(Events.GuildMemberAdd, async member => {
+    if (member.user.bot) return; // Opcional: ignorar bots
+    try {
+        const role = member.guild.roles.cache.get(autoRoleId);
+        if (role) {
+            await member.roles.add(role);
+            console.log(`Rol ${role.name} asignado a ${member.user.tag}`);
+        }
+    } catch (error) {
+        console.error(`Error asignando auto-rol a ${member.user.tag}:`, error);
+    }
+});
+
 
 // ==========================================
 // AUTO-MODERADOR E INTERCEPCIÓN DE MENSAJES
@@ -135,6 +155,49 @@ client.on(Events.MessageCreate, async message => {
         const row = new ActionRowBuilder().addComponents(button);
 
         return message.channel.send({ embeds: [panelEmbed], components: [row] });
+    }
+
+    // Comando para asignar el rol a todos los usuarios actuales (excluyendo rangos)
+    if (message.content === '!asignar-roles') {
+        if (!message.member.permissions.has('Administrator')) return;
+
+        const roleToAssign = message.guild.roles.cache.get(autoRoleId);
+        if (!roleToAssign) {
+            return message.reply('⚠️ No encontré el rol. Verifica el ID o asegúrate de que el bot tenga un rol superior al que intenta asignar.');
+        }
+
+        const excludedRoles = [
+            'El admid de esta verga',
+            'moderadores',
+            'el amor de mi vida',
+            'Streamers panas'
+        ];
+
+        await message.reply('⏳ Comenzando la asignación masiva de roles... esto puede tardar un poco dependiendo de cuántos miembros haya.');
+        
+        try {
+            // Obtenemos a todos los miembros
+            const members = await message.guild.members.fetch();
+            let count = 0;
+
+            for (const [id, member] of members) {
+                if (member.user.bot) continue; // Ignorar otros bots
+                if (member.roles.cache.has(roleToAssign.id)) continue; // Ya lo tiene
+
+                // Si tiene alguno de los roles excluidos, lo saltamos
+                const hasExcludedRole = member.roles.cache.some(r => excludedRoles.includes(r.name));
+                
+                if (!hasExcludedRole) {
+                    await member.roles.add(roleToAssign).catch(e => console.log(`No pude asignarle a ${member.user.tag} (posiblemente falta de jerarquía)`));
+                    count++;
+                }
+            }
+
+            return message.reply(`✅ Asignación finalizada. Se entregó el rol a **${count}** miembros.`);
+        } catch (error) {
+            console.error('Error en asignación masiva:', error);
+            return message.reply('⚠️ Ocurrió un error al asignar los roles (¿Están activados los intents en el portal de Discord?).');
+        }
     }
 });
 
